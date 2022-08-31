@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -10,11 +11,11 @@ public class MonsterPoker {
 
   double playerHP = 1000;
   double cpuHP = 1000;
-  int playerDeck[] = new int[5]; // 0~4までの数字（モンスターID）が入る
-  int cpuDeck[] = new int[5];
-  String monsters[] = { "スライム", "サハギン", "ドラゴン", "デュラハン", "シーサーペント" };// それぞれが0~4のIDのモンスターに相当する
-  int monsterAp[] = { 10, 20, 30, 25, 30 }; //各モンスターのAP
-  int monsterDp[] = { 40, 20, 25, 15, 20 }; //各モンスターのDP
+  Deck deck = new Deck();
+  private static final int HAND_AMOUNT = 5;
+  Card playerHand[] = new Card[HAND_AMOUNT]; // 0~4までの数字（モンスターID）が入る
+  Card cpuHand[] = new Card[HAND_AMOUNT];
+
   int cpuExchangeCards[] = new int[5];// それぞれ0,1でどのカードを交換するかを保持する．{0,1,1,0,1}の場合は2,3,5枚目のカードを交換することを表す
   String displayExchangeCardsForCPU = new String();// 交換するカードを1~5の数字の組み合わせで保持する．上の例の場合，"235"となる．
   int playerYaku[] = new int[5];// playerのモンスターカードがそれぞれ何枚ずつあるかを保存する配列．{2,3,0,0,0}の場合，ID0が2枚,ID1が3枚あることを示す．
@@ -42,6 +43,7 @@ public class MonsterPoker {
   int pair = 0; // pair数を保持する
   int one = 0;// 1枚だけのカードの枚数
 
+
   /**
    * 5枚のモンスターカードをプレイヤー/CPUが順に引く
    *
@@ -50,13 +52,14 @@ public class MonsterPoker {
   public void drawPhase(Scanner scanner) throws InterruptedException {
     // 初期Draw
     System.out.println("PlayerのDraw！");
-    for (int i = 0; i < playerDeck.length; i++) {
-      this.playerDeck[i] = card.nextInt(5);
+    for (int i = 0; i < playerHand.length; i++) {
+      this.playerHand[i] = deck.draw();
     }
     // カードの表示
     System.out.print("[Player]");
-    for (int i = 0; i < playerDeck.length; i++) {
-      System.out.printf("%s ", this.monsters[playerDeck[i]]);
+    for (int i = 0; i < playerHand.length; i++) {
+      String cardName = playerHand[i].name;
+      System.out.printf("%s ", cardName);
     }
     System.out.println();
 
@@ -65,54 +68,57 @@ public class MonsterPoker {
     String exchange = scanner.nextLine();
     if (exchange.charAt(0) != '0') {
       for (int i = 0; i < exchange.length(); i++) {
-        this.playerDeck[Character.getNumericValue(exchange.charAt(i)) - 1] = card.nextInt(5);
+        this.playerHand[Character.getNumericValue(exchange.charAt(i)) - 1] = deck.draw();
       }
       // カードの表示
       System.out.print("[Player]");
-      for (int i = 0; i < playerDeck.length; i++) {
-        System.out.printf("%s ", this.monsters[playerDeck[i]]);
+      for (int i = 0; i < playerHand.length; i++) {
+        String cardName = playerHand[i].name;
+        System.out.printf("%s ", cardName);
       }
       System.out.println();
       System.out.println("もう一度カードを交換する場合は1から5の数字（左から数えた位置を表す）を続けて入力してください．交換しない場合は0と入力してください");
       exchange = scanner.nextLine();
       if (exchange.charAt(0) != '0') {
         for (int i = 0; i < exchange.length(); i++) {
-          this.playerDeck[Character.getNumericValue(exchange.charAt(i)) - 1] = card.nextInt(5);
+          this.playerHand[Character.getNumericValue(exchange.charAt(i)) - 1] = deck.draw();
         }
         // カードの表示
         System.out.print("[Player]");
-        for (int i = 0; i < playerDeck.length; i++) {
-          System.out.printf("%s ", this.monsters[playerDeck[i]]);
+        for (int i = 0; i < playerHand.length; i++) {
+          String cardName = playerHand[i].name;
+          System.out.printf("%s ", cardName);
         }
         System.out.println();
       }
     }
 
     System.out.println("CPUのDraw！");
-    for (int i = 0; i < cpuDeck.length; i++) {
-      this.cpuDeck[i] = card.nextInt(5);
+    for (int i = 0; i < cpuHand.length; i++) {
+      this.cpuHand[i] = deck.draw();
     }
     // カードの表示
     System.out.print("[CPU]");
-    for (int i = 0; i < cpuDeck.length; i++) {
-      System.out.printf("%s ", this.monsters[cpuDeck[i]]);
+    for (int i = 0; i < cpuHand.length; i++) {
+      String cardName = cpuHand[i].name;
+      System.out.printf("%s ", cardName);
     }
     System.out.println();
 
     // 交換するカードの決定
     System.out.println("CPUが交換するカードを考えています・・・・・・");
     Thread.sleep(2000);
-    // cpuDeckを走査して，重複するカード以外のカードをランダムに交換する
-    // 0,1,0,2,3 といったcpuDeckの場合，2枚目，4枚目，5枚目のカードをそれぞれ交換するかどうか決定し，例えば24といった形で決定する
+    // cpuHandを走査して，重複するカード以外のカードをランダムに交換する
+    // 0,1,0,2,3 といったcpuHandの場合，2枚目，4枚目，5枚目のカードをそれぞれ交換するかどうか決定し，例えば24といった形で決定する
     // 何番目のカードを交換するかを0,1で持つ配列の初期化
     // 例えばcpuExchangeCards[]が{0,1,1,0,0}の場合は2,3枚目を交換の候補にする
     for (int i = 0; i < this.cpuExchangeCards.length; i++) {
       this.cpuExchangeCards[i] = -1;
     }
-    for (int i = 0; i < this.cpuDeck.length; i++) {
+    for (int i = 0; i < this.cpuHand.length; i++) {
       if (this.cpuExchangeCards[i] == -1) {
-        for (int j = i + 1; j < this.cpuDeck.length; j++) {
-          if (this.cpuDeck[i] == this.cpuDeck[j]) {
+        for (int j = i + 1; j < this.cpuHand.length; j++) {
+          if (this.cpuHand[i] == this.cpuHand[j]) {
             this.cpuExchangeCards[i] = 0;
             this.cpuExchangeCards[j] = 0;
           }
@@ -139,12 +145,13 @@ public class MonsterPoker {
     // カードの交換
     if (displayExchangeCardsForCPU.charAt(0) != '0') {
       for (int i = 0; i < displayExchangeCardsForCPU.length(); i++) {
-        this.cpuDeck[Character.getNumericValue(displayExchangeCardsForCPU.charAt(i)) - 1] = card.nextInt(5);
+        this.cpuHand[Character.getNumericValue(displayExchangeCardsForCPU.charAt(i)) - 1] = deck.draw();
       }
       // カードの表示
       System.out.print("[CPU]");
-      for (int i = 0; i < cpuDeck.length; i++) {
-        System.out.printf("%s ", this.monsters[cpuDeck[i]]);
+      for (int i = 0; i < cpuHand.length; i++) {
+        String cardName = cpuHand[i].name;
+        System.out.printf("%s ", cardName);
       }
       System.out.println();
     }
@@ -152,17 +159,17 @@ public class MonsterPoker {
     // 交換するカードの決定
     System.out.println("CPUが交換するカードを考えています・・・・・・");
     Thread.sleep(2000);
-    // cpuDeckを走査して，重複するカード以外のカードをランダムに交換する
-    // 0,1,0,2,3 といったcpuDeckの場合，2枚目，4枚目，5枚目のカードをそれぞれ交換するかどうか決定し，例えば24といった形で決定する
+    // cpuHandを走査して，重複するカード以外のカードをランダムに交換する
+    // 0,1,0,2,3 といったcpuHandの場合，2枚目，4枚目，5枚目のカードをそれぞれ交換するかどうか決定し，例えば24といった形で決定する
     // 何番目のカードを交換するかを0,1で持つ配列の初期化
     // 例えばcpuExchangeCards[]が{0,1,1,0,0}の場合は2,3枚目を交換の候補にする
     for (int i = 0; i < this.cpuExchangeCards.length; i++) {
       this.cpuExchangeCards[i] = -1;
     }
-    for (int i = 0; i < this.cpuDeck.length; i++) {
+    for (int i = 0; i < this.cpuHand.length; i++) {
       if (this.cpuExchangeCards[i] == -1) {
-        for (int j = i + 1; j < this.cpuDeck.length; j++) {
-          if (this.cpuDeck[i] == this.cpuDeck[j]) {
+        for (int j = i + 1; j < this.cpuHand.length; j++) {
+          if (this.cpuHand[i] == this.cpuHand[j]) {
             this.cpuExchangeCards[i] = 0;
             this.cpuExchangeCards[j] = 0;
           }
@@ -189,12 +196,13 @@ public class MonsterPoker {
     // カードの交換
     if (displayExchangeCardsForCPU.charAt(0) != '0') {
       for (int i = 0; i < displayExchangeCardsForCPU.length(); i++) {
-        this.cpuDeck[Character.getNumericValue(displayExchangeCardsForCPU.charAt(i)) - 1] = card.nextInt(5);
+        this.cpuHand[Character.getNumericValue(displayExchangeCardsForCPU.charAt(i)) - 1] = deck.draw();
       }
       // カードの表示
       System.out.print("[CPU]");
-      for (int i = 0; i < cpuDeck.length; i++) {
-        System.out.printf("%s ", this.monsters[cpuDeck[i]]);
+      for (int i = 0; i < cpuHand.length; i++) {
+        String cardName = cpuHand[i].name;
+        System.out.printf("%s ", cardName);
       }
       System.out.println();
     }
@@ -207,8 +215,8 @@ public class MonsterPoker {
       this.playerYaku[i] = 0;
     }
     // モンスターカードが何が何枚あるかをplayerYaku配列に登録
-    for (int i = 0; i < playerDeck.length; i++) {
-      this.playerYaku[this.playerDeck[i]]++;
+    for (int i = 0; i < playerHand.length; i++) {
+      this.playerYaku[this.playerHand[i].id]++;
     }
     // 役判定
     // 5が1つある：ファイブ
@@ -277,8 +285,8 @@ public class MonsterPoker {
     // APとDPの計算
     for (int i = 0; i < playerYaku.length; i++) {
       if (playerYaku[i] >= 1) {
-        this.playerAttackPoint = this.playerAttackPoint + this.monsterAp[i] * playerYaku[i];
-        this.playerDefencePoint = this.playerDefencePoint + this.monsterDp[i] * playerYaku[i];
+        this.playerAttackPoint = this.playerAttackPoint + this.playerHand[i].AttackPoint * playerYaku[i];
+        this.playerDefencePoint = this.playerDefencePoint + this.playerHand[i].DefencePoint * playerYaku[i];
       }
     }
     this.playerAttackPoint = this.playerAttackPoint * this.playerAttackPointRatio;
@@ -290,8 +298,8 @@ public class MonsterPoker {
       this.cpuYaku[i] = 0;
     }
     // モンスターカードが何が何枚あるかをcpuYaku配列に登録
-    for (int i = 0; i < cpuDeck.length; i++) {
-      this.cpuYaku[this.cpuDeck[i]]++;
+    for (int i = 0; i < cpuHand.length; i++) {
+      this.cpuYaku[this.cpuHand[i].id]++;
     }
     // 役判定
     // 5が1つある：ファイブ
@@ -360,8 +368,8 @@ public class MonsterPoker {
     // APとDPの計算
     for (int i = 0; i < cpuYaku.length; i++) {
       if (cpuYaku[i] >= 1) {
-        this.cpuAttackPoint = this.cpuAttackPoint + this.monsterAp[i] * cpuYaku[i];
-        this.cpuDefencePoint = this.cpuDefencePoint + this.monsterDp[i] * cpuYaku[i];
+        this.cpuAttackPoint = this.cpuAttackPoint + this.cpuHand[i].AttackPoint * cpuYaku[i];
+        this.cpuDefencePoint = this.cpuDefencePoint + this.cpuHand[i].DefencePoint * cpuYaku[i];
       }
     }
     this.cpuAttackPoint = this.cpuAttackPoint * this.cpuAttackPointRatio;
@@ -373,7 +381,7 @@ public class MonsterPoker {
     System.out.print("PlayerのDrawした");
     for (int i = 0; i < playerYaku.length; i++) {
       if (playerYaku[i] >= 1) {
-        System.out.print(this.monsters[i] + " ");
+        System.out.print(this.playerHand[i].name + " ");
         Thread.sleep(500);
       }
     }
@@ -392,7 +400,7 @@ public class MonsterPoker {
     System.out.print("CPUのDrawした");
     for (int i = 0; i < cpuYaku.length; i++) {
       if (cpuYaku[i] >= 1) {
-        System.out.print(this.monsters[i] + " ");
+        System.out.print(this.cpuHand[i].name + " ");
         Thread.sleep(500);
       }
     }
