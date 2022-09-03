@@ -7,8 +7,6 @@ import java.util.Scanner;
 public class MonsterPoker {
 
   Random card = new Random();
-  double playerHP = 1000;
-  double cpuHP = 1000;
   Deck deck = new Deck();
   private static final int HAND_AMOUNT = 5;
   Card playerHand[] = new Card[HAND_AMOUNT]; // 0~4までの数字（モンスターID）が入る
@@ -18,14 +16,6 @@ public class MonsterPoker {
   String displayExchangeCardsForCPU = new String();// 交換するカードを1~5の数字の組み合わせで保持する．上の例の場合，"235"となる．
   int playerYaku[] = new int[5];// playerのモンスターカードがそれぞれ何枚ずつあるかを保存する配列．{2,3,0,0,0}の場合，ID0が2枚,ID1が3枚あることを示す．
   int cpuYaku[] = new int[5];// playerのモンスターカードがそれぞれ何枚ずつあるかを保存する配列．{2,3,0,0,0}の場合，ID0が2枚,ID1が3枚あることを示す．
-  double playerAttackPointRatio = 1;// Playerの役によるAP倍率．初期値は1で役が決まると対応した数値になる．1.5倍の場合は1.5となる
-  double playerDefencePointRatio = 1;// Playerの役によるDP倍率．初期値は1で役が決まると対応した数値になる．1.5倍の場合は1.5となる
-  double playerAttackPoint = 0;// PlayerのAP
-  double playerDefencePoint = 0;// PlayerのDP
-  double cpuAttackPointRatio = 1;// CPUの役によるAP倍率．1.5倍の場合は1.5となる
-  double cpuDefencePointRatio = 1;
-  double cpuAttackPoint = 0;
-  double cpuDefencePoint = 0;
   // 役判定用フラグ
   // 役判定
   // 5が1つある：ファイブ->five = true
@@ -85,50 +75,13 @@ public class MonsterPoker {
     // 0,1,0,2,3 といったcpuHandの場合，2枚目，4枚目，5枚目のカードをそれぞれ交換するかどうか決定し，例えば24といった形で決定する
     // 何番目のカードを交換するかを0,1で持つ配列の初期化
     // 例えばcpuExchangeCards[]が{0,1,1,0,0}の場合は2,3枚目を交換の候補にする
-    for (int i = 0; i < this.cpuExchangeCards.length; i++) {
-      this.cpuExchangeCards[i] = -1;
-    }
-    for (int i = 0; i < this.cpuHand.length; i++) {
-      if (this.cpuExchangeCards[i] == -1) {
-        for (int j = i + 1; j < this.cpuHand.length; j++) {
-          if (this.cpuHand[i] == this.cpuHand[j]) {
-            this.cpuExchangeCards[i] = 0;
-            this.cpuExchangeCards[j] = 0;
-          }
-        }
-        if (this.cpuExchangeCards[i] != 0) {
-          this.cpuExchangeCards[i] = this.card.nextInt(2);// 交換するかどうかをランダムに最終決定する
-          // this.cpuExchangeCards[i] = 1;
-        }
-      }
-    }
-    cpu.selectExchangeCards();
+    cpu.redraw();
 
     // 交換するカード番号の表示
-    this.displayExchangeCardsForCPU = "";
-    for (int i = 0; i < cpuExchangeCards.length; i++) {
-      if (this.cpuExchangeCards[i] == 1) {
-        this.displayExchangeCardsForCPU = this.displayExchangeCardsForCPU + (i + 1);
-      }
-    }
-    if (this.displayExchangeCardsForCPU.length() == 0) {
-      this.displayExchangeCardsForCPU = "0";
-    }
-    System.out.println(this.displayExchangeCardsForCPU);
-
+    cpu.displayExchangeCards();
     // カードの交換
-    if (displayExchangeCardsForCPU.charAt(0) != '0') {
-      for (int i = 0; i < displayExchangeCardsForCPU.length(); i++) {
-        this.cpuHand[Character.getNumericValue(displayExchangeCardsForCPU.charAt(i)) - 1] = deck.draw();
-      }
-      // カードの表示
-      System.out.print("[CPU]");
-      for (int i = 0; i < cpuHand.length; i++) {
-        String cardName = cpuHand[i].name;
-        System.out.printf("%s ", cardName);
-      }
-      System.out.println();
-    }
+    cpu.redraw();
+    cpu.displayExchangeCards();
 
     // 交換するカードの決定
     System.out.println("CPUが交換するカードを考えています・・・・・・");
@@ -223,36 +176,36 @@ public class MonsterPoker {
 
     // 役の判定
     System.out.println("Playerの役は・・");
+    player.defencePointRatio = new DefencePointRatio(1);
     this.playerAttackPointRatio = 1;// 初期化
-    this.playerDefencePointRatio = 1;
     if (one == 5) {
       System.out.println("スペシャルファイブ！AP/DPは両方10倍！");
       this.playerAttackPointRatio = 10;
-      this.playerDefencePointRatio = 10;
+      player.defencePointRatio = new DefencePointRatio(10);
     } else if (five == true) {
       System.out.println("ファイブ！AP/DPは両方5倍！");
       this.playerAttackPointRatio = 5;
-      this.playerDefencePointRatio = 5;
+      player.defencePointRatio = new DefencePointRatio(5);
     } else if (four == true) {
       System.out.println("フォー！AP/DPは両方4倍！");
       this.playerAttackPointRatio = 3;
-      this.playerDefencePointRatio = 3;
+      player.defencePointRatio = new DefencePointRatio(4);
     } else if (three == true && pair == 1) {
       System.out.println("フルハウス！AP/DPは両方3倍");
       this.playerAttackPointRatio = 3;
-      this.playerDefencePointRatio = 3;
+      player.defencePointRatio = new DefencePointRatio(3);
     } else if (three == true) {
       System.out.println("スリーカード！AP/DPはそれぞれ3倍と2倍");
       this.playerAttackPointRatio = 3;
-      this.playerDefencePointRatio = 2;
+      player.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 2) {
       System.out.println("ツーペア！AP/DPは両方2倍");
       this.playerAttackPointRatio = 2;
-      this.playerDefencePointRatio = 2;
+      player.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 1) {
       System.out.println("ワンペア！AP/DPは両方1/2倍");
       this.playerAttackPointRatio = 0.5;
-      this.playerDefencePointRatio = 0.5;
+      player.defencePointRatio = new DefencePointRatio(0.5);
     }
     Thread.sleep(1000);
 
@@ -395,51 +348,10 @@ public class MonsterPoker {
   }
 
   public double getPlayerHp() {
-    return this.playerHP;
+    return player.hitPoint.value;
   }
 
   public double getCpuHp() {
-    return this.cpuHP;
+    return cpu.hitPoint.value;
   }
-
-  public double getp15() {
-    return this.playerAttackPointRatio;
-  }
-
-  public void setp15(double p15) {
-    this.playerAttackPointRatio = p15;
-  }
-
-  public double getp16() {
-    return this.playerDefencePointRatio;
-  }
-
-  public void setp16(double p16) {
-    this.playerDefencePointRatio = p16;
-  }
-
-  public double getp17() {
-    return this.playerAttackPoint;
-  }
-
-  public void setp17(double p17) {
-    this.playerAttackPoint = p17;
-  }
-
-  public double getc15() {
-    return this.cpuAttackPointRatio;
-  }
-
-  public void setc15(double c15) {
-    this.cpuAttackPointRatio = c15;
-  }
-
-  public double getc16() {
-    return this.cpuDefencePointRatio;
-  }
-
-  public void setc16(double c16) {
-    this.cpuDefencePointRatio = c16;
-  }
-
 }

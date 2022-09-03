@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Random;
 
 public class CPU extends Duelist{
@@ -6,16 +7,15 @@ public class CPU extends Duelist{
         super(deck);
     }
 
+    private int[] selectExchangeCards = new int[Hand.HAND_AMOUNT];
+
     @Override
     protected int[] selectExchangeCards() {
-        var selectExchangeCards = new int[5];
-        for (int i = 0; i < selectExchangeCards.length; i++) {
-           selectExchangeCards[i] = -1;
-        }
-        for (int i = 0; i < hand.length; i++) {
+        Arrays.fill(selectExchangeCards, -1);
+        for (int i = 0; i < Hand.HAND_AMOUNT; i++) {
             if (selectExchangeCards[i] == -1) {
-                for (int j = i + 1; j < hand.length; j++) {
-                    if (hand[i] == hand[j]) {
+                for (int j = i + 1; j < Hand.HAND_AMOUNT; j++) {
+                    if (hand.cards[i] == hand.cards[j]) {
                         selectExchangeCards[i] = 0;
                         selectExchangeCards[j] = 0;
                     }
@@ -27,5 +27,18 @@ public class CPU extends Duelist{
             }
         }
         return selectExchangeCards;
+    }
+
+    public void displayExchangeCards(){
+        var displayExchangeCardsForCPU = "";
+        for (int i = 0; i < Hand.HAND_AMOUNT; i++) {
+            if (selectExchangeCards[i] == 1) {
+                displayExchangeCardsForCPU = displayExchangeCardsForCPU + (i + 1);
+            }
+        }
+        if (displayExchangeCardsForCPU.length() == 0) {
+            displayExchangeCardsForCPU = "0";
+        }
+        System.out.println(displayExchangeCardsForCPU);
     }
 }
