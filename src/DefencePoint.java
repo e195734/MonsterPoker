@@ -1,9 +1,5 @@
-/**
- * Ratio を内部に含まないクラス
- * どっちが使い勝手良いか試してみるためわざと変な設計にしています。
- */
 public class DefencePoint {
-    final double value;
+    final private double value;
     public DefencePoint(double value){
         this.value = value;
     }

@@ -1,8 +1,9 @@
 public abstract class Duelist {
     HitPoint hitPoint;
     Hand hand;
-    AttackPoint attackPoint = new AttackPoint(0, new Ratio(1));
+    AttackPoint attackPoint = new AttackPoint(0);
     DefencePoint defencePoint = new DefencePoint(0);
+    AttackPointRatio attackPointRatio = new AttackPointRatio(1);
     DefencePointRatio defencePointRatio = new DefencePointRatio(1);
     int[] pokerHand = new int[Hand.HAND_AMOUNT];
     Deck deck;

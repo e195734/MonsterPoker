@@ -34,7 +34,8 @@ public class MonsterPoker {
   private final Scanner scanner;
   private final Player player;
   private final CPU cpu;
-  public MonsterPoker(Scanner scanner){
+
+  public MonsterPoker(Scanner scanner) {
     this.scanner = scanner;
     player = new Player(deck, scanner);
     cpu = new CPU(deck);
@@ -177,34 +178,34 @@ public class MonsterPoker {
     // 役の判定
     System.out.println("Playerの役は・・");
     player.defencePointRatio = new DefencePointRatio(1);
-    this.playerAttackPointRatio = 1;// 初期化
+    player.attackPointRatio = new AttackPointRatio(1);
     if (one == 5) {
       System.out.println("スペシャルファイブ！AP/DPは両方10倍！");
-      this.playerAttackPointRatio = 10;
+      player.attackPointRatio = new AttackPointRatio(10);
       player.defencePointRatio = new DefencePointRatio(10);
     } else if (five == true) {
       System.out.println("ファイブ！AP/DPは両方5倍！");
-      this.playerAttackPointRatio = 5;
+      player.attackPointRatio = new AttackPointRatio(5);
       player.defencePointRatio = new DefencePointRatio(5);
     } else if (four == true) {
       System.out.println("フォー！AP/DPは両方4倍！");
-      this.playerAttackPointRatio = 3;
+      player.attackPointRatio = new AttackPointRatio(3);
       player.defencePointRatio = new DefencePointRatio(4);
     } else if (three == true && pair == 1) {
       System.out.println("フルハウス！AP/DPは両方3倍");
-      this.playerAttackPointRatio = 3;
+      player.attackPointRatio = new AttackPointRatio(3);
       player.defencePointRatio = new DefencePointRatio(3);
     } else if (three == true) {
       System.out.println("スリーカード！AP/DPはそれぞれ3倍と2倍");
-      this.playerAttackPointRatio = 3;
+      player.attackPointRatio = new AttackPointRatio(3);
       player.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 2) {
       System.out.println("ツーペア！AP/DPは両方2倍");
-      this.playerAttackPointRatio = 2;
+      player.attackPointRatio = new AttackPointRatio(2);
       player.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 1) {
       System.out.println("ワンペア！AP/DPは両方1/2倍");
-      this.playerAttackPointRatio = 0.5;
+      player.attackPointRatio = new AttackPointRatio(0.5);
       player.defencePointRatio = new DefencePointRatio(0.5);
     }
     Thread.sleep(1000);
@@ -342,16 +343,20 @@ public class MonsterPoker {
       this.playerHP = this.playerHP - damage;
     }
 
-    System.out.println("PlayerのHPは" + this.playerHP);
-    System.out.println("CPUのHPは" + this.cpuHP);
+    System.out.println("PlayerのHPは" + player.hitPoint.value);
+    System.out.println("CPUのHPは" + cpu.hitPoint.value);
 
   }
 
-  public double getPlayerHp() {
-    return player.hitPoint.value;
+  public boolean winCPU() {
+    return player.hitPoint.isZero();
   }
 
-  public double getCpuHp() {
-    return cpu.hitPoint.value;
+  public boolean winPlayer() {
+    return cpu.hitPoint.isZero();
+  }
+
+  public boolean didEndGame() {
+    return winCPU() || winPlayer();
   }
 }
