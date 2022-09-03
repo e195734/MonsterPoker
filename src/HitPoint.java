@@ -9,10 +9,15 @@ public class HitPoint {
         this.value = value;
     }
 
-    public HitPoint damage(final int damageAmount){
+    private HitPoint damage(final int damageAmount){
         final int damaged = value - damageAmount;
         final int corrected = Math.max(damaged, MIN);
         return new HitPoint(corrected);
+    }
+
+    public HitPoint damage(final AttackPoint enemy, final DefencePoint myDefence){
+        final double damage = Math.abs(enemy.get()- myDefence.value);
+        return damage((int) damage);
     }
 
     public boolean isZero(){

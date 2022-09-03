@@ -2,10 +2,9 @@ public abstract class Duelist {
     private static final int HAND_AMOUNT = 5;
     HitPoint hitPoint;
     Card[] hand = new Card[HAND_AMOUNT];
-    double attackPointRatio = 1;
-    double defencePointRatio = 1;
-    double attackPoint = 0;
-    double defencePoint = 0;
+    AttackPoint attackPoint = new AttackPoint(0, new Ratio(1));
+    DefencePoint defencePoint = new DefencePoint(0);
+    DefencePointRatio defencePointRatio = new DefencePointRatio(1);
     int[] pokerHand = new int[HAND_AMOUNT];
     Deck deck;
 
