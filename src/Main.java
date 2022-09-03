@@ -16,8 +16,8 @@ public class Main {
    * @throws InterruptedException
    */
   public static void main(String[] args) throws InterruptedException {
-    MonsterPoker mp = new MonsterPoker();
     Scanner scanner = new Scanner(System.in);// 標準入力
+    MonsterPoker mp = new MonsterPoker(scanner);
     while (true) {
       mp.drawPhase(scanner);
       mp.battlePhase();

@@ -7,7 +7,6 @@ import java.util.Scanner;
 public class MonsterPoker {
 
   Random card = new Random();
-
   double playerHP = 1000;
   double cpuHP = 1000;
   Deck deck = new Deck();
@@ -42,6 +41,14 @@ public class MonsterPoker {
   int pair = 0; // pair数を保持する
   int one = 0;// 1枚だけのカードの枚数
 
+  private final Scanner scanner;
+  private final Player player;
+  private final CPU cpu;
+  public MonsterPoker(Scanner scanner){
+    this.scanner = scanner;
+    player = new Player(deck, scanner);
+    cpu = new CPU(deck);
+  }
 
   /**
    * 5枚のモンスターカードをプレイヤー/CPUが順に引く
@@ -51,57 +58,24 @@ public class MonsterPoker {
   public void drawPhase(Scanner scanner) throws InterruptedException {
     // 初期Draw
     System.out.println("PlayerのDraw！");
-    for (int i = 0; i < playerHand.length; i++) {
-      this.playerHand[i] = deck.draw();
-    }
+    player.hand.initDraw();
+
     // カードの表示
     System.out.print("[Player]");
-    for (int i = 0; i < playerHand.length; i++) {
-      String cardName = playerHand[i].name;
-      System.out.printf("%s ", cardName);
-    }
+    player.hand.display();
     System.out.println();
 
     // カードの交換
-    System.out.println("カードを交換する場合は1から5の数字（左から数えた位置を表す）を続けて入力してください．交換しない場合は0と入力してください");
-    String exchange = scanner.nextLine();
-    if (exchange.charAt(0) != '0') {
-      for (int i = 0; i < exchange.length(); i++) {
-        this.playerHand[Character.getNumericValue(exchange.charAt(i)) - 1] = deck.draw();
-      }
-      // カードの表示
-      System.out.print("[Player]");
-      for (int i = 0; i < playerHand.length; i++) {
-        String cardName = playerHand[i].name;
-        System.out.printf("%s ", cardName);
-      }
-      System.out.println();
-      System.out.println("もう一度カードを交換する場合は1から5の数字（左から数えた位置を表す）を続けて入力してください．交換しない場合は0と入力してください");
-      exchange = scanner.nextLine();
-      if (exchange.charAt(0) != '0') {
-        for (int i = 0; i < exchange.length(); i++) {
-          this.playerHand[Character.getNumericValue(exchange.charAt(i)) - 1] = deck.draw();
-        }
-        // カードの表示
-        System.out.print("[Player]");
-        for (int i = 0; i < playerHand.length; i++) {
-          String cardName = playerHand[i].name;
-          System.out.printf("%s ", cardName);
-        }
-        System.out.println();
-      }
-    }
+    player.selectExchangeCards();
+    player.hand.display();
+    player.selectExchangeCards();
+    player.hand.display();
 
     System.out.println("CPUのDraw！");
-    for (int i = 0; i < cpuHand.length; i++) {
-      this.cpuHand[i] = deck.draw();
-    }
+    cpu.selectExchangeCards();
     // カードの表示
     System.out.print("[CPU]");
-    for (int i = 0; i < cpuHand.length; i++) {
-      String cardName = cpuHand[i].name;
-      System.out.printf("%s ", cardName);
-    }
+    cpu.hand.display();
     System.out.println();
 
     // 交換するカードの決定
@@ -128,6 +102,7 @@ public class MonsterPoker {
         }
       }
     }
+    cpu.selectExchangeCards();
 
     // 交換するカード番号の表示
     this.displayExchangeCardsForCPU = "";
