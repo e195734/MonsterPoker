@@ -16,7 +16,7 @@ public class HitPoint {
     }
 
     public HitPoint damage(final AttackPoint enemy, final DefencePoint myDefence){
-        final double damage = Math.abs(enemy.get()- myDefence.value);
+        final double damage = Math.abs(enemy.value- myDefence.value);
         return damage((int) damage);
     }
 

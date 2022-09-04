@@ -9,6 +9,6 @@ public class Deck {
 
   public Card draw(){
     int id = random.nextInt(5);
-    return new Card(id,monsters[id],monstersAttackPoint[id],monstersDefencePoint[id]);
+    return new Card(id,monsters[id],new AttackPoint(monstersAttackPoint[id]),new DefencePoint(monstersDefencePoint[id]));
   }
 }

@@ -49,7 +49,7 @@ public class MonsterPoker {
   public void drawPhase(Scanner scanner) throws InterruptedException {
     // 初期Draw
     System.out.println("PlayerのDraw！");
-    player.hand.initDraw();
+    player.hand = player.hand.initDraw();
 
     // カードの表示
     System.out.print("[Player]");
@@ -63,7 +63,7 @@ public class MonsterPoker {
     player.hand.display();
 
     System.out.println("CPUのDraw！");
-    cpu.selectExchangeCards();
+    cpu.hand = cpu.hand.initDraw();
     // カードの表示
     System.out.print("[CPU]");
     cpu.hand.display();
