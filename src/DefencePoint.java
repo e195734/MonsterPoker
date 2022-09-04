@@ -1,5 +1,5 @@
 public class DefencePoint {
-    final private double value;
+    final double value;
     public DefencePoint(double value){
         this.value = value;
     }

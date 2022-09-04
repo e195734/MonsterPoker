@@ -1,5 +1,5 @@
 public class AttackPoint {
-    private final double value;
+    final double value;
     public AttackPoint(double value){
         this.value = value;
     }
@@ -10,5 +10,8 @@ public class AttackPoint {
 
     public AttackPoint multiple(AttackPointRatio ratio){
         return new AttackPoint( this.value * ratio.value);
+    }
+    public AttackPoint multiple(AttackPoint other){
+        return new AttackPoint( this.value * other.value);
     }
 }

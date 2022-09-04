@@ -213,12 +213,12 @@ public class MonsterPoker {
     // APとDPの計算
     for (int i = 0; i < playerYaku.length; i++) {
       if (playerYaku[i] >= 1) {
-        this.playerAttackPoint = this.playerAttackPoint + this.playerHand[i].AttackPoint * playerYaku[i];
-        this.playerDefencePoint = this.playerDefencePoint + this.playerHand[i].DefencePoint * playerYaku[i];
+        player.attackPoint = new AttackPoint(player.attackPoint.value + playerHand[i].AttackPoint.value * playerYaku[i]);
+        player.defencePoint = new DefencePoint(player.defencePoint.value + playerHand[i].DefencePoint.value*playerYaku[i]);
       }
     }
-    this.playerAttackPoint = this.playerAttackPoint * this.playerAttackPointRatio;
-    this.playerDefencePoint = this.playerDefencePoint * this.playerDefencePointRatio;
+    player.attackPoint = player.attackPoint.multiple(player.attackPointRatio);
+    player.defencePoint = player.defencePoint.multiple(player.defencePointRatio);
 
     // CPUの役の判定
     // 役判定用配列の初期化
@@ -260,48 +260,48 @@ public class MonsterPoker {
 
     // 役の判定
     System.out.println("CPUの役は・・");
-    this.cpuAttackPointRatio = 1;// 初期化
-    this.cpuDefencePointRatio = 1;
+    cpu.attackPointRatio = new AttackPointRatio(1);// 初期化
+    cpu.defencePointRatio = new DefencePointRatio(1);
     if (one == 5) {
       System.out.println("スペシャルファイブ！AP/DPは両方10倍！");
-      this.cpuAttackPointRatio = 10;
-      this.cpuDefencePointRatio = 10;
+      cpu.attackPointRatio = new AttackPointRatio(10);
+      cpu.defencePointRatio = new DefencePointRatio(10);
     } else if (five == true) {
       System.out.println("ファイブ！AP/DPは両方5倍！");
-      this.cpuAttackPointRatio = 5;
-      this.cpuDefencePointRatio = 5;
+      cpu.attackPointRatio = new AttackPointRatio(5);
+      cpu.defencePointRatio = new DefencePointRatio(5);
     } else if (four == true) {
       System.out.println("フォー！AP/DPは両方4倍！");
-      this.cpuAttackPointRatio = 3;
-      this.cpuDefencePointRatio = 3;
+      cpu.attackPointRatio = new AttackPointRatio(3);
+      cpu.defencePointRatio = new DefencePointRatio(3);
     } else if (three == true && pair == 1) {
       System.out.println("フルハウス！AP/DPは両方3倍");
-      this.cpuAttackPointRatio = 3;
-      this.cpuDefencePointRatio = 3;
+      cpu.attackPointRatio = new AttackPointRatio(3);
+      cpu.defencePointRatio = new DefencePointRatio(3);
     } else if (three == true) {
       System.out.println("スリーカード！AP/DPはそれぞれ3倍と2倍");
-      this.cpuAttackPointRatio = 3;
-      this.cpuDefencePointRatio = 2;
+      cpu.attackPointRatio = new AttackPointRatio(3);
+      cpu.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 2) {
       System.out.println("ツーペア！AP/DPは両方2倍");
-      this.cpuAttackPointRatio = 2;
-      this.cpuDefencePointRatio = 2;
+      cpu.attackPointRatio = new AttackPointRatio(2);
+      cpu.defencePointRatio = new DefencePointRatio(2);
     } else if (pair == 1) {
       System.out.println("ワンペア！AP/DPは両方1/2倍");
-      this.cpuAttackPointRatio = 0.5;
-      this.cpuDefencePointRatio = 0.5;
+      cpu.attackPointRatio = new AttackPointRatio(0.5);
+      cpu.defencePointRatio = new DefencePointRatio(0.5);
     }
     Thread.sleep(1000);
 
     // APとDPの計算
     for (int i = 0; i < cpuYaku.length; i++) {
       if (cpuYaku[i] >= 1) {
-        this.cpuAttackPoint = this.cpuAttackPoint + this.cpuHand[i].AttackPoint * cpuYaku[i];
-        this.cpuDefencePoint = this.cpuDefencePoint + this.cpuHand[i].DefencePoint * cpuYaku[i];
+        cpu.attackPoint = cpu.attackPoint.add(new AttackPoint(cpuHand[i].AttackPoint.value * cpuYaku[i]));
+        cpu.defencePoint = cpu.defencePoint.add(new DefencePoint(cpuHand[i].DefencePoint.value * cpuYaku[i]));
       }
     }
-    this.cpuAttackPoint = this.cpuAttackPoint * this.cpuAttackPointRatio;
-    this.cpuDefencePoint = this.cpuDefencePoint * this.cpuDefencePointRatio;
+    cpu.attackPoint = cpu.attackPoint.multiple(cpu.attackPointRatio);
+    cpu.defencePoint = cpu.defencePoint.multiple(cpu.defencePointRatio);
 
     // バトル
     System.out.println("バトル！！");
@@ -316,12 +316,12 @@ public class MonsterPoker {
     System.out.print("の攻撃！");
     Thread.sleep(1000);
     System.out.println("CPUのモンスターによるガード！");
-    if (this.cpuDefencePoint >= this.playerAttackPoint) {
+    if (cpu.defencePoint.value >= player.attackPoint.value) {
       System.out.println("CPUはノーダメージ！");
     } else {
-      double damage = this.playerAttackPoint - this.cpuDefencePoint;
+      double damage = player.attackPoint.value - cpu.defencePoint.value;
       System.out.printf("CPUは%.0fのダメージを受けた！\n", damage);
-      this.cpuHP = this.cpuHP - damage;
+      cpu.hitPoint.damage(player.attackPoint, cpu.defencePoint);
     }
 
     // CPUの攻撃
@@ -335,12 +335,12 @@ public class MonsterPoker {
     System.out.print("の攻撃！");
     Thread.sleep(1000);
     System.out.println("Playerのモンスターによるガード！");
-    if (this.playerDefencePoint >= this.cpuAttackPoint) {
+    if (player.defencePoint.value >= cpu.attackPoint.value) {
       System.out.println("Playerはノーダメージ！");
     } else {
-      double damage = this.cpuAttackPoint - this.playerDefencePoint;
+      double damage = cpu.attackPoint.value - player.defencePoint.value;
       System.out.printf("Playerは%.0fのダメージを受けた！\n", damage);
-      this.playerHP = this.playerHP - damage;
+      player.hitPoint.damage(cpu.attackPoint, player.defencePoint);
     }
 
     System.out.println("PlayerのHPは" + player.hitPoint.value);
